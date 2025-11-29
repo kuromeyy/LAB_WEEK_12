@@ -37,15 +37,15 @@ class MovieViewModel(private val movieRepository: MovieRepository)
                         .filter { movie ->
                             movie.releaseDate?.startsWith(currentYear) == true
                         }
-                        .sortedByDescending { it.popularity }
+                        .sortedByDescending { it.popularity }   // filtering by popularity
                 }
                 .catch {
-                    _error.value =
-                        "An exception occurred: ${it.message}"
+                    _error.value = "An exception occurred: ${it.message}"
                 }
                 .collect {
-                    _popularMovies.value = it
+                    _popularMovies.value = it   // masuk ke stateflow
                 }
+
         }
     }
 }
