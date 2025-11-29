@@ -1,25 +1,41 @@
 package com.example.lab_week_12.model
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Movie(
+
     val adult: Boolean = false,
-    val backdrop_path: String = "",
+
+    @Json(name = "backdrop_path")
+    val backdropPath: String? = null,
+
     val id: Int = 0,
-    @field:Json(name = "original_language")
-    val originalLanguage: String = "",
-    @field:Json(name = "original_title")
-    val originalTitle: String = "",
-    val overview: String = "",
+
+    @Json(name = "original_language")
+    val originalLanguage: String? = null,
+
+    @Json(name = "original_title")
+    val originalTitle: String? = null,
+
+    val overview: String? = null,
+
     val popularity: Float = 0f,
-    @field:Json(name = "poster_path")
-    val posterPath: String = "",
-    @field:Json(name = "release_date")
-    val releaseDate: String = "",
-    val title: String = "",
+
+    @Json(name = "poster_path")
+    val posterPath: String? = null,
+
+    @Json(name = "release_date")
+    val releaseDate: String? = null,
+
+    val title: String? = null,
+
     val video: Boolean = false,
-    @field:Json(name = "vote_average")
+
+    @Json(name = "vote_average")
     val voteAverage: Float = 0f,
-    @field:Json(name = "vote_count")
+
+    @Json(name = "vote_count")
     val voteCount: Int = 0
 )

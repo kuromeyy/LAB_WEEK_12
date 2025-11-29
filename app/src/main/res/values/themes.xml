@@ -7,5 +7,5 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="Theme.TEST_LAB_WEEK_12" parent="Base.Theme.LAB_WEEK_12" />
+    <style name="Theme.LAB_WEEK_12" parent="Base.Theme.LAB_WEEK_12" />
 </resources>
