@@ -2,6 +2,7 @@ package com.example.lab_week_12
 
 import android.app.Application
 import com.example.lab_week_12.api.MovieService
+import com.squareup.moshi.Moshi
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
@@ -12,12 +13,17 @@ class MovieApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        val moshi = Moshi.Builder().build()
+
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.themoviedb.org/3/")
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(
+                MoshiConverterFactory.create(moshi)
+            )
             .build()
 
-        val movieService = retrofit.create(MovieService::class.java)
+        val movieService =
+            retrofit.create(MovieService::class.java)
 
         movieRepository = MovieRepository(movieService)
     }

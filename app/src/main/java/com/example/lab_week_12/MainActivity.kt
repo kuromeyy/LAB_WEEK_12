@@ -3,15 +3,18 @@ package com.example.lab_week_12
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab_week_12.model.Movie
 import com.google.android.material.snackbar.Snackbar
-import java.util.Calendar
+import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity(), MovieAdapter.MovieClickListener {
+class MainActivity : AppCompatActivity(),
+    MovieAdapter.MovieClickListener {
 
     private lateinit var movieAdapter: MovieAdapter
 
@@ -19,10 +22,10 @@ class MainActivity : AppCompatActivity(), MovieAdapter.MovieClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val recyclerView: RecyclerView = findViewById(R.id.movie_list)
+        val recyclerView: RecyclerView =
+            findViewById(R.id.movie_list)
 
         movieAdapter = MovieAdapter(this)
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
         recyclerView.adapter = movieAdapter
 
         val movieRepository =
@@ -31,45 +34,57 @@ class MainActivity : AppCompatActivity(), MovieAdapter.MovieClickListener {
         val movieViewModel = ViewModelProvider(
             this,
             object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                override fun <T : ViewModel>
+                        create(modelClass: Class<T>): T {
                     return MovieViewModel(movieRepository) as T
                 }
             }
         )[MovieViewModel::class.java]
 
-        movieViewModel.popularMovies.observe(this) { popularMovies ->
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-            val currentYear =
-                Calendar.getInstance().get(Calendar.YEAR).toString()
-
-            movieAdapter.addMovies(
-                popularMovies
-                    .filter { movie ->
-                        // aman dari null
-                        movie.releaseDate?.startsWith(currentYear) == true
+                launch {
+                    movieViewModel.popularMovies.collect { movies ->
+                        movieAdapter.addMovies(movies)
                     }
-                    .sortedByDescending { it.popularity }
-            )
-        }
+                }
 
-        movieViewModel.error.observe(this) { error ->
-            if (error.isNotEmpty()) {
-                Snackbar.make(
-                    recyclerView,
-                    error,
-                    Snackbar.LENGTH_LONG
-                ).show()
+                launch {
+                    movieViewModel.error.collect { error ->
+                        if (error.isNotEmpty()) {
+                            Snackbar.make(
+                                recyclerView,
+                                error,
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
             }
         }
     }
 
     override fun onMovieClick(movie: Movie) {
-        val intent = Intent(this, DetailsActivity::class.java).apply {
-            putExtra(DetailsActivity.EXTRA_TITLE, movie.title)
-            putExtra(DetailsActivity.EXTRA_RELEASE, movie.releaseDate)
-            putExtra(DetailsActivity.EXTRA_OVERVIEW, movie.overview)
-            putExtra(DetailsActivity.EXTRA_POSTER, movie.posterPath)
-        }
+        val intent = Intent(this, DetailsActivity::class.java)
+            .apply {
+                putExtra(
+                    DetailsActivity.EXTRA_TITLE,
+                    movie.title
+                )
+                putExtra(
+                    DetailsActivity.EXTRA_RELEASE,
+                    movie.releaseDate
+                )
+                putExtra(
+                    DetailsActivity.EXTRA_OVERVIEW,
+                    movie.overview
+                )
+                putExtra(
+                    DetailsActivity.EXTRA_POSTER,
+                    movie.posterPath
+                )
+            }
         startActivity(intent)
     }
 }
